@@ -1,0 +1,79 @@
+---
+execute:
+  error: true
+---
+
+# Control flow and error handling
+
+## Error handling
+
+
+
+## Custom errors
+
+```{r}
+library(rlang)
+```
+
+```{r}
+tryCatch(
+  error = function(cnd) {
+    str(cnd, max.level = 2)
+  },
+  {
+    abort(
+      "error_not_found",
+      message = "Path `blah.csv` not found",
+      path = "blah.csv",
+      format = "csv"
+    )
+  }
+)
+```
+
+Note the `path` and `format` component in the output above, the `...` argument in `rlang::abort` is used to pass metadata about the error.
+
+
+```{r}
+abort_bad_argument <- function(arg, must, not = NULL) {
+  msg <- glue::glue("`{arg}` must {must}")
+  if (!is.null(not)) {
+    not <- typeof(not)
+    msg <- glue::glue("{msg}; not {not}.")
+  }
+
+  abort("error_bad_argument",
+    message = msg,
+    arg = arg,
+    must = must,
+    not = not
+  )
+}
+
+abort_bad_argument("bin", "be a positve integer", not = "hello")
+```
+
+The general `error_bad_argument` helper can be used in any validation context:
+
+
+```{r}
+my_log <- function(x, base = exp(1)) {
+  if (!is.numeric(x)) {
+    abort_bad_argument("x", must = "be numeric", not = x)
+  }
+  if (!is.numeric(base)) {
+    abort_bad_argument("base", must = "be numeric", not = base)
+  }
+
+  base::log(x, base = base)
+}
+
+my_log("hello", 2)
+my_log(10, "hello")
+
+tryCatch(
+  error_bad_argument = function(cnd) "bad_argument",
+  error = function(cnd) "other error",
+  my_log("a")
+)
+```

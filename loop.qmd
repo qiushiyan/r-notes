@@ -1,0 +1,53 @@
+# Looping and parallel computing
+
+## Apply functions
+
+-   `apply(x, margin, fun)` the general function that loop through given dimension of an object
+
+-   `lapply(x, fun)` accepts a list, return a list
+
+-   `sapply(x, fun, ..., simplify = TRUE, USE.NAMES = TRUE)` and `vapply(x, fun, FUN.VALUE, ..., USE.NAMES = TRUE)`, variants of `lapply()` that produce vectors, matrices, and arrays as output, instead of lists.
+
+`sapply()` and `vapply()` are very similar to `lapply()` except they simplify their output to produce an atomic vector. While `sapply()` guesses, `vapply()` takes an additional argument specifying the output type. `sapply()` is great for interactive use because it saves typing, but if you use it inside your functions you'll get weird errors if you supply the wrong type of input. `vapply()` is more verbose, but gives more informative error messages and never fails silently. It is better suited for use inside other functions.
+
+```{r}
+sapply(mtcars, class)
+
+# character(1) means each output element should be a length-1 character vector
+vapply(mtcars, class, character(1))
+```
+
+If the function returns results of different types or lengths, `sapply()` will silently return a list, while `vapply()` will throw an error. `sapply()` is fine for interactive use because you'll normally notice if something goes wrong, but it's dangerous when writing functions.
+
+-   `tapply(x, group, fun)` is a generalisation to `apply()` that allows for "ragged" arrays, arrays where each row can have a different number of columns. This is often needed when you're trying to summarise a data set. For example, imagine you've collected pulse rate data from a medical trial, and you want to compare the two groups:
+
+```{r}
+pulse <- round(rnorm(22, 70, 10 / 3)) + rep(c(0, 5), c(10, 12))
+group <- rep(c("A", "B"), c(10, 12))
+
+tapply(pulse, group, length)
+tapply(pulse, group, mean)
+```
+
+`tapply()` works by creating a "ragged" data structure from a set of inputs, and then applying a function to the individual elements of that structure. The first task is actually what the `split()` function does. It takes two inputs and returns a list which groups elements together from the first vector according to elements, or categories, from the second vector:
+
+```{r}
+split(pulse, group)
+```
+
+Then `tapply()` is just the combination of `split()` and `sapply()`:
+
+```{r}
+tapply2 <- function(x, group, fun, ...) {
+  pieces <- split(x, group)
+  sapply(pieces, fun, ...)
+}
+
+tapply2(pulse, group, max)
+```
+
+Being able to rewrite `tapply()` as a combination of `split()` and `sapply()` is a good indication that we've identified some useful building blocks.
+
+## Futureverse
+
+https://henrikbengtsson.github.io/future-tutorial-user2022/index.html

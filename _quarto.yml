@@ -1,0 +1,43 @@
+project:
+  type: book
+
+book:
+  title: "Notes for R"
+  author: "Qiushi Yan"
+  date: now
+  chapters:
+    - index.qmd
+    - loop.qmd
+    - flow.qmd
+    - function.qmd
+    - environment.qmd
+    - string.qmd
+    - non-interactive.qmd
+    - part: OOP
+      chapters:
+        - s3.qmd
+        - r6.qmd
+    - part: Package development
+      chapters:
+        - package.qmd
+        - testthat.qmd
+        - roxygen2.qmd
+
+    - part: Metaprogramming
+      chapters:
+        - base-meta.qmd
+        - tidy-eval.qmd
+
+filters:
+  - code-filename
+
+format:
+  html:
+    theme: cosmo
+
+knitr:
+  opts_chunk:
+    warning: false
+    message: false
+    fig-width: 8
+    fig-height: 6
